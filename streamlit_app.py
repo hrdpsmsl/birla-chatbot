@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 import pathlib
 import json
+import httpx
 
 # Initialize the Gemini API client
 client = genai.Client(api_key="AIzaSyCAes7xlarqRP7GVHQ")
