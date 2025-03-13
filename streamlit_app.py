@@ -12,9 +12,10 @@ sys_instruct = ("You are an expert technical document summarizer. "
                 "If an out-of-context question is asked, return 'No relevant URL found'. "
                 "If no relevant response is found, return 'Please try again'.")
 
-# Path to the local PDF file (modify as needed)
-filepath = pathlib.Path('/Users/harsingh77/Sites/python/data/pdfs/birla.pdf')
 
+doc_url = "https://thecaseagainstinvisibility.com/media/birla.pdf"  # Replace with the actual URL of your PDF
+# Retrieve and encode the PDF byte
+doc_data = httpx.get(doc_url).content
 # Streamlit UI
 st.title("Document URL Extractor using Gemini API")
 
@@ -29,7 +30,7 @@ if user_input:
             ),
             contents=[
                 types.Part.from_bytes(
-                    data=filepath.read_bytes(),
+                    data=filepath,
                     mime_type='application/pdf',
                 ),
                 f"Provide the URL for: {user_input}"
