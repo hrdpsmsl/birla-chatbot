@@ -2,6 +2,7 @@ import streamlit as st
 from google import genai
 from google.genai import types
 import pathlib
+import httpx
 
 # Initialize the Google GenAI Client
 client = genai.Client(api_key="AIzaSyCAMzjEQYVcfIZq7Bcjes7xlarqRP7GVHQ")
