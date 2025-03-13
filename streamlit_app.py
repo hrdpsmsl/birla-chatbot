@@ -18,9 +18,9 @@ doc_url = "https://thecaseagainstinvisibility.com/media/birla.pdf"  # Replace wi
 # Retrieve and encode the PDF byte
 doc_data = httpx.get(doc_url).content
 # Streamlit UI
-st.title("Document URL Extractor using Gemini API")
+st.title("AI-driven MP Birla website navigation")
 
-user_input = st.text_input("Enter prompt:")
+user_input = st.text_input("🤖 How can I help you?")
 
 if user_input:
     with st.spinner("Generating response..."):
