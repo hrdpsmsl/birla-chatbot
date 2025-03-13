@@ -6,7 +6,7 @@ import json
 import httpx
 
 # Initialize the Gemini API client
-client = genai.Client(api_key="AIzaSyCAes7xlarqRP7GVHQ")
+client = genai.Client(api_key="AIzaSyCAMzjEQYVcfIZq7Bcjes7xlarqRP7GVHQ")
 
 # System instruction
 sys_instruct = (
