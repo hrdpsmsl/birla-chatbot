@@ -20,7 +20,7 @@ sys_instruct = (
 st.title("📄 PDF URL Extractor using Gemini")
 
 # User inputs file path
-doc_url = "https://discovery.ucl.ac.uk/id/eprint/10089234/1/343019_3_art_0_py4t4l_convrt.pdf"  # Replace with the actual URL of your PDF
+doc_url = "https://thecaseagainstinvisibility.com/media/birla.pdf"  # Replace with the actual URL of your PDF
 
 # Retrieve and encode the PDF byte
 doc_data = httpx.get(doc_url).content
@@ -30,10 +30,9 @@ user_input = st.text_input("Enter your query:")
 
 if doc_data and user_input:
     
-
     # Check if the file exists
-    if not doc_data.exists():
-        path
+    if not user_input.exists():
+        pass
     else:
         # Generate response with Gemini API
         with st.spinner("Generating response..."):
