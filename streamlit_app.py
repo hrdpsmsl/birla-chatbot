@@ -17,20 +17,22 @@ sys_instruct = (
 
 # Streamlit UI
 st.title("📄 PDF URL Extractor using Gemini")
-st.write("Enter the full file path of the PDF and your query to retrieve a relevant URL.")
 
 # User inputs file path
-pdf_path = st.text_input("Enter the full file path of the PDF:", "/Users/harsingh77/Sites/python/data/pdfs/birla.pdf")
+doc_url = "https://discovery.ucl.ac.uk/id/eprint/10089234/1/343019_3_art_0_py4t4l_convrt.pdf"  # Replace with the actual URL of your PDF
+
+# Retrieve and encode the PDF byte
+doc_data = httpx.get(doc_url).content
 
 # User enters a query
 user_input = st.text_input("Enter your query:")
 
-if pdf_path and user_input:
-    filepath = pathlib.Path(pdf_path)
+if doc_data and user_input:
+    
 
     # Check if the file exists
-    if not filepath.exists():
-        st.error("❌ File not found! Please enter a valid file path.")
+    if not doc_data.exists():
+        path
     else:
         # Generate response with Gemini API
         with st.spinner("Generating response..."):
@@ -39,7 +41,7 @@ if pdf_path and user_input:
                 config=types.GenerateContentConfig(system_instruction=sys_instruct),
                 contents=[
                     types.Part.from_bytes(
-                        data=filepath.read_bytes(),
+                        data=doc_data,
                         mime_type="application/pdf",
                     ),
                     f"Provide the URL for: {user_input}",
