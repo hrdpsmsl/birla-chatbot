@@ -38,4 +38,4 @@ if user_input:
             ]
         )
         st.subheader("Generated Response")
-        st.write(response.text.url or response.text)
+        st.write(response.text)
