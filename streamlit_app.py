@@ -1,56 +1,58 @@
 import streamlit as st
-from openai import OpenAI
+from google import genai
+from google.genai import types
+import pathlib
+import json
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
+# Initialize the Gemini API client
+client = genai.Client(api_key="AIzaSyCAes7xlarqRP7GVHQ")
+
+# System instruction
+sys_instruct = (
+    "You are an expert technical document summarizer. "
+    "Provide the response in JSON object notation like { 'url': '<url>' } with a single URL only. "
+    "If an out-of-context question is asked, return 'No relevant URL found'. "
+    "If no relevant response is found, return 'Please try again'."
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+# Streamlit UI
+st.title("📄 PDF URL Extractor using Gemini")
+st.write("Upload a PDF and enter a query to retrieve a relevant URL.")
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+# File uploader
+uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# User input field
+user_input = st.text_input("Enter your query:")
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+if uploaded_file and user_input:
+    # Save uploaded file temporarily
+    temp_filepath = f"temp_{uploaded_file.name}"
+    with open(temp_filepath, "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+    # Read the PDF file
+    filepath = pathlib.Path(temp_filepath)
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
+    # Generate response with Gemini API
+    with st.spinner("Generating response..."):
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            config=types.GenerateContentConfig(system_instruction=sys_instruct),
+            contents=[
+                types.Part.from_bytes(
+                    data=filepath.read_bytes(),
+                    mime_type="application/pdf",
+                ),
+                f"Provide the URL for: {user_input}",
             ],
-            stream=True,
         )
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+    # Display the response
+    try:
+        json_response = json.loads(response.text)
+        st.subheader("🔗 Extracted URL:")
+        st.json(json_response)  # Display as formatted JSON
+    except json.JSONDecodeError:
+        st.error("Invalid JSON response. Try again.")
+
