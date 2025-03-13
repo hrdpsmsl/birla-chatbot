@@ -17,42 +17,39 @@ sys_instruct = (
 
 # Streamlit UI
 st.title("📄 PDF URL Extractor using Gemini")
-st.write("Upload a PDF and enter a query to retrieve a relevant URL.")
+st.write("Enter the full file path of the PDF and your query to retrieve a relevant URL.")
 
-# File uploader
-uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
+# User inputs file path
+pdf_path = st.text_input("Enter the full file path of the PDF:", "/Users/harsingh77/Sites/python/data/pdfs/birla.pdf")
 
-# User input field
+# User enters a query
 user_input = st.text_input("Enter your query:")
 
-if uploaded_file and user_input:
-    # Save uploaded file temporarily
-    temp_filepath = f"temp_{uploaded_file.name}"
-    with open(temp_filepath, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+if pdf_path and user_input:
+    filepath = pathlib.Path(pdf_path)
 
-    # Read the PDF file
-    filepath = pathlib.Path(temp_filepath)
+    # Check if the file exists
+    if not filepath.exists():
+        st.error("❌ File not found! Please enter a valid file path.")
+    else:
+        # Generate response with Gemini API
+        with st.spinner("Generating response..."):
+            response = client.models.generate_content(
+                model="gemini-1.5-flash",
+                config=types.GenerateContentConfig(system_instruction=sys_instruct),
+                contents=[
+                    types.Part.from_bytes(
+                        data=filepath.read_bytes(),
+                        mime_type="application/pdf",
+                    ),
+                    f"Provide the URL for: {user_input}",
+                ],
+            )
 
-    # Generate response with Gemini API
-    with st.spinner("Generating response..."):
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            config=types.GenerateContentConfig(system_instruction=sys_instruct),
-            contents=[
-                types.Part.from_bytes(
-                    data=filepath.read_bytes(),
-                    mime_type="application/pdf",
-                ),
-                f"Provide the URL for: {user_input}",
-            ],
-        )
-
-    # Display the response
-    try:
-        json_response = json.loads(response.text)
-        st.subheader("🔗 Extracted URL:")
-        st.json(json_response)  # Display as formatted JSON
-    except json.JSONDecodeError:
-        st.error("Invalid JSON response. Try again.")
-
+        # Display the response
+        try:
+            json_response = json.loads(response.text)
+            st.subheader("🔗 Extracted URL:")
+            st.json(json_response)  # Display as formatted JSON
+        except json.JSONDecodeError:
+            st.error("Invalid JSON response. Try again.")
