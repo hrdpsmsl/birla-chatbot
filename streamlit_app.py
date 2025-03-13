@@ -29,29 +29,22 @@ doc_data = httpx.get(doc_url).content
 user_input = st.text_input("Enter your query:")
 
 if doc_data and user_input:
-    
-    # Check if the file exists
-    if not user_input.exists():
-        pass
-    else:
-        # Generate response with Gemini API
-        with st.spinner("Generating response..."):
-            response = client.models.generate_content(
-                model="gemini-1.5-flash",
-                config=types.GenerateContentConfig(system_instruction=sys_instruct),
-                contents=[
-                    types.Part.from_bytes(
-                        data=doc_data,
-                        mime_type="application/pdf",
-                    ),
-                    f"Provide the URL for: {user_input}",
-                ],
-            )
-
+    with st.spinner("Generating response..."):
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            config=types.GenerateContentConfig(system_instruction=sys_instruct),
+            contents=[
+                types.Part.from_bytes(
+                    data=doc_data,
+                    mime_type="application/pdf",
+                ),
+                f"Provide the URL for: {user_input}",
+            ],
+        )
         # Display the response
-        try:
-            json_response = json.loads(response.text)
-            st.subheader("🔗 Extracted URL:")
-            st.json(json_response)  # Display as formatted JSON
-        except json.JSONDecodeError:
-            st.error("Invalid JSON response. Try again.")
+    try:
+        json_response = json.loads(response.text)
+        st.subheader("🔗 Extracted URL:")
+        st.json(json_response)  # Display as formatted JSON
+    except json.JSONDecodeError:
+        st.error("Invalid JSON response. Try again.")
