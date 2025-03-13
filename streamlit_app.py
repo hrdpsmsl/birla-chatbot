@@ -31,7 +31,7 @@ if user_input:
             ),
             contents=[
                 types.Part.from_bytes(
-                    data=filepath,
+                    data=doc_data,
                     mime_type='application/pdf',
                 ),
                 f"Provide the URL for: {user_input}"
