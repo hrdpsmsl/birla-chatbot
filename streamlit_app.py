@@ -4,7 +4,7 @@ from google.genai import types
 import pathlib
 
 # Initialize the Google GenAI Client
-client = genai.Client(api_key="AIzafIZq7Bcjes7xlaqRP7GVHQ")
+client = genai.Client(api_key="AIzaSyCAMzjEQYVcfIZq7Bcjes7xlarqRP7GVHQ")
 
 # System instruction
 sys_instruct = ("You are an expert technical document summarizer. "
