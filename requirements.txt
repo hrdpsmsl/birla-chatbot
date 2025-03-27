@@ -1,4 +1,5 @@
 streamlit
-google-genai
-pathlib
-httpx
+selenium
+webdriver-manager
+pandas
+openpyxl
